@@ -1,55 +1,59 @@
-import React from 'react'
-import {Route} from 'react-router-dom'
-import Main from './Main'
-import Detail from './Detail'
+import React from "react";
+import styled from "styled-components";
+import { Route, Switch } from "react-router-dom";
+import BucketList from "./BucketList";
+import Detail from "./Detail";
+import NotFound from "./NotFound";
+import {db} from './firebase'
+import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc} from 'firebase/firestore'
+import { async } from "@firebase/util";
+import {loadWordFB} from "./redux/modules/word"
+import { useDispatch } from "react-redux";
+
+
 function App() {
-  const createRanNum = () => {
-    return Math.floor(Math.random() * 5) + 1
-  }
+    const dispatch = useDispatch()
+    React.useEffect(()=>{
+        dispatch(loadWordFB())
+        
+    },[])
 
-  const createWeekData = () => {
-    const krDay = ['일', '월', '화', '수', '목', '금', '토']
-    const today = new Date()
-    const day = today.getDay()
-    const todayKr = krDay[day]
-    const splitDays = krDay.join('').split(todayKr)
-    let sortDayArr = [
-      todayKr,
-      ...splitDays[1],
-      ...splitDays[0]
-    ] 
-
-    sortDayArr = sortDayArr.map(day => {
-      return {
-        day,
-        score: createRanNum()
-      }
-    })
-
-    return sortDayArr
-  }
-
-  const weekData = createWeekData()
-  console.log(weekData)
-  return (
-    <>
-    <div className="App" style={{
-        maxWidth: "350px",
-        margin : 'auto'
-    }}>
-      
-      <Route path= "/" exact>
-        <Main weekData={weekData}/> 
-        {/* 리스트 넘겨줄수 있나? */}
-      </Route>
-      <Route path= "/detail" exact>
-      <Detail  weekData={weekData}/>
-      </Route>
-      
-    
-    </div>
-    </>
-  );
+    return (
+        <All>
+            <div>
+                <Title>중국어 단어장</Title>
+                <Line />
+                <Switch>
+                    <Route path="/" exact>
+                        <BucketList />
+                    </Route>
+                    <Route path="/detail/:index">
+                        <Detail />
+                    </Route>
+                    <Route>
+                        <NotFound />
+                    </Route>
+                </Switch>
+            </div>
+        </All>
+    );
 }
+
+
+const All = styled.div`
+background-color : #fff;
+height : 100vh;
+width : 100vw;
+`
+
+const Title = styled.h1`
+color: black;
+text-align: center;
+`;
+
+const Line = styled.hr`
+margin: 16px 0px;
+border: 1px solid #ddd;
+`;
 
 export default App;
